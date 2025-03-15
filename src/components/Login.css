@@ -11,7 +11,7 @@
 }
 
 .login-logo {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .logo-image {
@@ -84,4 +84,15 @@
   margin-top: 10px;
   color: #0b6200; /* Link color */
   text-decoration: none;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #fadbd8;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #e74c3c;
 }
