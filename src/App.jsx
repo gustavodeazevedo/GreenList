@@ -114,7 +114,7 @@ function App() {
             {/* Botão de adicionar item */}
             <button
               type="submit"
-              className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#0e3f1d] text-white rounded-lg hover:bg[#0e3f1d] transition-colors text-sm sm:text-base whitespace-nowrap"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#3D9A59] text-white rounded-lg hover:bg[#0e3f1d] transition-colors text-sm sm:text-base whitespace-nowrap"
             >
               {editingId ? "Update" : "Adicionar item"}
             </button>
