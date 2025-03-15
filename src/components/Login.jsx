@@ -1,6 +1,6 @@
 import "./Login.css";
 import React from "react";
-import Logosvg from "../images/GreenListLogoSVG.svg";
+import Logo from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
 import Fundo from "../images/GreenListFundo.svg";
@@ -16,7 +16,7 @@ function Login({ setIsLoggedIn }) {
     <div className="login-container">
       <div className="login-logo">
         {/* Logo */}
-        <img src={Logosvg} alt="Logo" className="logo-image" />
+        <img src={Logo} alt="Logo" className="logo-image" />
       </div>
       <form onSubmit={handleLogin} className="login-form">
         <div className="input-group">
