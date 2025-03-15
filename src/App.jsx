@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import Logo from "../src/images/GreenListLogoSVG.svg"; // Importe o logo
+import CheckboxSVG from "./images/checkbox.svg"; // Import the checkbox SVG
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -70,6 +71,27 @@ function App() {
     if (window.confirm("Tem certeza de que deseja limpar toda a lista?")) {
       setItems([]);
     }
+  };
+
+  // Add a function to render custom checkbox
+  const renderCheckbox = (isChecked, onChange) => {
+    return (
+      <div className="relative flex items-center justify-center">
+        <input
+          type="checkbox"
+          checked={isChecked}
+          onChange={onChange}
+          className="absolute opacity-0 w-5 h-5 cursor-pointer z-10"
+        />
+        <div className={`w-5 h-5 rounded-lg border ${isChecked ? 'bg-[#3D9A59] border-[#3D9A59]' : 'bg-white border-gray-300'} flex items-center justify-center`}>
+          {isChecked && (
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return !isLoggedIn ? (
@@ -147,12 +169,7 @@ function App() {
                 item.completed ? "opacity-75" : ""
               }`}
             >
-              <input
-                type="checkbox"
-                checked={item.completed}
-                onChange={() => toggleItem(item.id)}
-                className="w-4 h-4 sm:w-5 sm:h-5 text-[#3D9A59] rounded focus:ring-[#3D9A59]"
-              />
+              {renderCheckbox(item.completed, () => toggleItem(item.id))}
               <span
                 className={`flex-1 text-sm sm:text-base ${
                   item.completed
