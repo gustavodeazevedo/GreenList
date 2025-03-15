@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
+import Logo from "../src/images/GreenListLogoSVG.svg"; // Importe o logo
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -66,7 +67,7 @@ function App() {
   };
 
   const clearList = () => {
-    if (window.confirm("Are you sure you want to clear the entire list?")) {
+    if (window.confirm("Tem certeza de que deseja limpar toda a lista?")) {
       setItems([]);
     }
   };
@@ -74,7 +75,28 @@ function App() {
   return !isLoggedIn ? (
     <Login setIsLoggedIn={setIsLoggedIn} />
   ) : (
-    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8 lg:p-10 relative">
+    <div className="min-h-screen bg-gray-100 relative">
+      {/* Header Section */}
+      <div className="bg-gray-100 p-4">
+        <div className="flex items-center justify-center mb-4">
+          <img src={Logo} alt="GreenList Logo" className="h-12 w-12" />
+          <h1 className="text-3xl font-bold text-gray-700 ml-2">GreenList</h1>
+        </div>
+
+        <div className="max-w-2xl mx-auto">
+          <button 
+            className="text-green-600 flex items-center mb-2"
+            onClick={() => setIsLoggedIn(false)}
+          >
+            <span className="mr-1">←</span> Voltar
+          </button>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Compras da semana
+          </h2>
+        </div>
+      </div>
+      {/* End Header Section */}
+
       {toast.show && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2">
           <span>{toast.message}</span>
@@ -87,10 +109,6 @@ function App() {
         </div>
       )}
       <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6 animate-fade-in">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#000000] mb-4 sm:mb-6 text-center">
-          Compras da semana
-        </h1>
-
         <form
           onSubmit={
             editingId
@@ -108,7 +126,7 @@ function App() {
               value={newItem}
               onChange={(e) => setNewItem(e.target.value)}
               placeholder="Adicione um item..."
-              className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-primary transition-colors text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-[#3D9A59] transition-colors text-sm sm:text-base"
             />
 
             {/* Botão de adicionar item */}
@@ -133,20 +151,20 @@ function App() {
                 type="checkbox"
                 checked={item.completed}
                 onChange={() => toggleItem(item.id)}
-                className="w-4 h-4 sm:w-5 sm:h-5 text-primary rounded focus:ring-primary"
+                className="w-4 h-4 sm:w-5 sm:h-5 text-[#3D9A59] rounded focus:ring-[#3D9A59]"
               />
               <span
                 className={`flex-1 text-sm sm:text-base ${
                   item.completed
                     ? "line-through text-gray-500"
-                    : "text-gray-800"
+                    : "text-[#000000]"
                 }`}
               >
                 {item.text}
               </span>
               <button
                 onClick={() => startEditing(item.id, item.text)}
-                className="p-1.5 sm:p-2 text-secondary hover:text-primary transition-colors"
+                className="p-1.5 sm:p-2 text-secondary- hover:text-primary transition-colors"
               >
                 ✏️
               </button>
@@ -164,7 +182,7 @@ function App() {
           <div className="mt-4 sm:mt-6 text-center">
             <button
               onClick={clearList}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-danger bg-[#0e3f1d] rounded-lg transition-colors"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-danger bg-[#3D9A59] rounded-lg transition-colors"
             >
               <span className="text-[#ffffff]">Limpar lista</span>
             </button>
