@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
-import Logo from "../src/images/GreenListLogoSVG.svg"; // Importe o logo
-import CheckboxSVG from "./images/checkbox.svg"; // Import the checkbox SVG
+import Signup from "./components/Signup"; // Import the Signup component
+import Logo from "../src/images/GreenListLogoSVG.svg";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(true); // Start with signup mode
   const [toast, setToast] = useState({ show: false, message: "" });
   const [items, setItems] = useState(() => {
     const savedItems = localStorage.getItem("shoppingList");
@@ -95,8 +96,21 @@ function App() {
   };
 
   return !isLoggedIn ? (
-    <Login setIsLoggedIn={setIsLoggedIn} />
+    isSignupMode ? (
+      // Show Signup first
+      <Signup 
+        setIsLoggedIn={setIsLoggedIn} 
+        switchToLogin={() => setIsSignupMode(false)} 
+      />
+    ) : (
+      // Show Login if not in signup mode
+      <Login 
+        setIsLoggedIn={setIsLoggedIn} 
+        switchToSignup={() => setIsSignupMode(true)} 
+      />
+    )
   ) : (
+    // Main app content when logged in
     <div className="min-h-screen bg-gray-100 relative">
       {/* Header Section */}
       <div className="bg-gray-100 p-4">

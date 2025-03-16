@@ -5,7 +5,7 @@ import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
 import Fundo from "../images/GreenListFundo.svg";
 
-function Login({ setIsLoggedIn }) {
+function Login({ setIsLoggedIn, switchToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -75,8 +75,11 @@ function Login({ setIsLoggedIn }) {
         <button type="submit" className="login-button">
           LOGIN
         </button>
-        <a href="#" className="forgot-password">
-          Forgot password?
+        <a href="#" className="forgot-password" onClick={(e) => {
+          e.preventDefault();
+          switchToSignup();
+        }}>
+          Não tem uma conta? Cadastre-se
         </a>
       </form>
     </div>
