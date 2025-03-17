@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Logosvg from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
+import axios from "axios";
 
 function Signup({ setIsLoggedIn, switchToLogin }) {
   const [username, setUsername] = useState("");
@@ -10,53 +11,45 @@ function Signup({ setIsLoggedIn, switchToLogin }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = (e) => {
+  // No componente Signup, quando o registro for bem-sucedido:
+  const handleSignup = async (e) => {
     e.preventDefault();
-
-    // Validate inputs
-    if (!username) {
-      setError("Por favor, digite seu nome de usuário");
-      return;
-    }
-
-    if (!email) {
-      setError("Por favor, digite seu e-mail");
-      return;
-    }
-
-    if (!password) {
-      setError("Por favor, digite sua senha");
-      return;
-    }
-
-    if (!confirmPassword) {
-      setError("Por favor, confirme sua senha");
-      return;
-    }
-
+    setIsLoading(true);
+  
     if (password !== confirmPassword) {
       setError("As senhas não coincidem");
+      setIsLoading(false);
       return;
     }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Por favor, digite um e-mail válido");
-      return;
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/register", {
+        name: username, // Changed from name to username
+        email,
+        password
+      });
+      
+      // Certifique-se de que o token e os dados do usuário estão sendo armazenados corretamente
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify({
+        id: response.data.user._id,
+        name: response.data.user.name,
+        email: response.data.user.email
+      }));
+      
+      setIsLoading(false);
+      
+      // Using destructured props instead of props.setIsLoggedIn
+      setIsLoggedIn(true);
+      
+      // Force a page reload to ensure state is updated
+      window.location.href = "/"; // Using href instead of reload for a cleaner navigation
+    } catch (error) {
+      setIsLoading(false);
+      setError(error.response?.data?.message || "Erro ao criar conta");
     }
-
-    // Password validation (minimum 6 characters)
-    if (password.length < 6) {
-      setError("A senha deve ter pelo menos 6 caracteres");
-      return;
-    }
-
-    // In a real app, you would send this data to your backend
-    // For demo purposes, let's just simulate a successful signup
-    setError("");
-    setIsLoggedIn(true);
   };
 
   return (
@@ -115,8 +108,8 @@ function Signup({ setIsLoggedIn, switchToLogin }) {
             />
           </div>
         </div>
-        <button type="submit" className="login-button">
-          CRIAR CONTA
+        <button type="submit" className="login-button" disabled={isLoading}>
+          {isLoading ? "CARREGANDO..." : "CRIAR CONTA"}
         </button>
         <a href="#" className="forgot-password" onClick={(e) => {
           e.preventDefault();

@@ -1,77 +1,267 @@
 import { useState, useEffect } from "react";
 import Login from "./components/Login";
-import Signup from "./components/Signup"; // Import the Signup component
+import Signup from "./components/Signup";
 import Logo from "../src/images/GreenListLogoSVG.svg";
+import axios from "axios";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isSignupMode, setIsSignupMode] = useState(true); // Start with signup mode
+  const [isSignupMode, setIsSignupMode] = useState(true);
   const [toast, setToast] = useState({ show: false, message: "" });
-  const [items, setItems] = useState(() => {
-    const savedItems = localStorage.getItem("shoppingList");
-    return savedItems ? JSON.parse(savedItems) : [];
-  });
+  const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentList, setCurrentList] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Check if user is logged in on component mount
+  // Vamos modificar o useEffect que verifica se o usuário está logado
   useEffect(() => {
-    localStorage.setItem("shoppingList", JSON.stringify(items));
-  }, [items]);
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    
+    if (token && user) {
+      try {
+        // Adicione um try/catch para evitar erros de JSON inválido
+        const parsedUser = JSON.parse(user);
+        setIsLoggedIn(true);
+        setCurrentUser(parsedUser);
+      } catch (error) {
+        // Se houver um erro ao fazer parse do JSON, limpe o localStorage
+        console.error("Erro ao analisar dados do usuário:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    }
+  }, []);
 
-  const addItem = (e) => {
-    e.preventDefault();
-    if (!newItem.trim()) return;
+  // Fetch or create default list when user logs in
+  useEffect(() => {
+    if (isLoggedIn && currentUser) {
+      fetchUserLists();
+    }
+  }, [isLoggedIn, currentUser]);
 
-    const item = {
-      id: Date.now(),
-      text: newItem.trim(),
-      completed: false,
-    };
-
-    setItems([...items, item]);
-    setNewItem("");
-  };
-
-  const toggleItem = (id) => {
-    setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    );
-  };
-
-  const removeItem = (id) => {
-    const itemToRemove = items.find((item) => item.id === id);
-    if (itemToRemove) {
-      setItems(items.filter((item) => item.id !== id));
-      setToast({
-        show: true,
-        message: `Item "${itemToRemove.text}" foi excluído`,
+  // Fetch user's lists from the backend
+  const fetchUserLists = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:5000/api/lists", {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setTimeout(() => setToast({ show: false, message: "" }), 3000);
+      
+      // If user has lists, use the first one, otherwise create a default list
+      if (response.data.length > 0) {
+        setCurrentList(response.data[0]);
+        fetchListItems(response.data[0]._id);
+      } else {
+        createDefaultList();
+      }
+    } catch (error) {
+      console.error("Error fetching lists:", error);
+      showToast("Erro ao carregar listas", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Create a default shopping list for new users
+  const createDefaultList = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:5000/api/lists",
+        { name: "Compras da semana" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setCurrentList(response.data);
+      setItems([]);
+    } catch (error) {
+      console.error("Error creating default list:", error);
+      showToast("Erro ao criar lista padrão", "error");
+    }
+  };
+
+  // Fetch items for a specific list
+  const fetchListItems = async (listId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`http://localhost:5000/api/lists/${listId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data && response.data.items) {
+        // Transform backend items to match our frontend format
+        const transformedItems = response.data.items.map(item => ({
+          id: item._id,
+          text: item.name,
+          completed: item.completed
+        }));
+        
+        setItems(transformedItems);
+      }
+    } catch (error) {
+      console.error("Error fetching list items:", error);
+      showToast("Erro ao carregar itens", "error");
+    }
+  };
+
+  // Add a new item to the current list
+  const addItem = async (e) => {
+    e.preventDefault();
+    if (!newItem.trim() || !currentList) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `http://localhost:5000/api/lists/${currentList._id}/items`,
+        {
+          name: newItem.trim(),
+          quantity: 1,
+          unit: "unit",
+          completed: false
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Add the new item to our state
+      const newItemData = {
+        id: response.data._id,
+        text: response.data.name,
+        completed: response.data.completed
+      };
+      
+      setItems([...items, newItemData]);
+      setNewItem("");
+    } catch (error) {
+      console.error("Error adding item:", error);
+      showToast("Erro ao adicionar item", "error");
+    }
+  };
+
+  // Toggle item completion status
+  const toggleItem = async (id) => {
+    try {
+      const item = items.find(item => item.id === id);
+      if (!item || !currentList) return;
+      
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:5000/api/lists/${currentList._id}/items/${id}`,
+        { completed: !item.completed },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Update local state
+      setItems(
+        items.map(item =>
+          item.id === id ? { ...item, completed: !item.completed } : item
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling item:", error);
+      showToast("Erro ao atualizar item", "error");
+    }
+  };
+
+  // Remove an item from the list
+  const removeItem = async (id) => {
+    try {
+      const itemToRemove = items.find(item => item.id === id);
+      if (!itemToRemove || !currentList) return;
+      
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `http://localhost:5000/api/lists/${currentList._id}/items/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Update local state
+      setItems(items.filter(item => item.id !== id));
+      showToast(`Item "${itemToRemove.text}" foi excluído`, "success");
+    } catch (error) {
+      console.error("Error removing item:", error);
+      showToast("Erro ao remover item", "error");
+    }
+  };
+
+  // Start editing an item
   const startEditing = (id, text) => {
     setEditingId(id);
     setNewItem(text);
   };
 
-  const updateItem = (id) => {
-    if (!newItem.trim()) return;
-    setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, text: newItem.trim() } : item
-      )
-    );
-    setEditingId(null);
-    setNewItem("");
+  // Update an existing item
+  const updateItem = async (id) => {
+    if (!newItem.trim() || !currentList) return;
+    
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:5000/api/lists/${currentList._id}/items/${id}`,
+        { name: newItem.trim() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Update local state
+      setItems(
+        items.map(item =>
+          item.id === id ? { ...item, text: newItem.trim() } : item
+        )
+      );
+      setEditingId(null);
+      setNewItem("");
+    } catch (error) {
+      console.error("Error updating item:", error);
+      showToast("Erro ao atualizar item", "error");
+    }
   };
 
-  const clearList = () => {
+  // Clear the entire list
+  const clearList = async () => {
+    if (!currentList) return;
+    
     if (window.confirm("Tem certeza de que deseja limpar toda a lista?")) {
-      setItems([]);
+      try {
+        const token = localStorage.getItem("token");
+        
+        // Delete each item individually
+        for (const item of items) {
+          await axios.delete(
+            `http://localhost:5000/api/lists/${currentList._id}/items/${item.id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        }
+        
+        setItems([]);
+      } catch (error) {
+        console.error("Error clearing list:", error);
+        showToast("Erro ao limpar lista", "error");
+      }
     }
+  };
+
+  // Handle user logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setCurrentList(null);
+    setItems([]);
+  };
+
+  // Show toast message
+  const showToast = (message, type = "success") => {
+    setToast({
+      show: true,
+      message,
+      type
+    });
+    setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
   };
 
   // Add a function to render custom checkbox
@@ -97,20 +287,18 @@ function App() {
 
   return !isLoggedIn ? (
     isSignupMode ? (
-      // Show Signup first
       <Signup 
         setIsLoggedIn={setIsLoggedIn} 
         switchToLogin={() => setIsSignupMode(false)} 
       />
     ) : (
-      // Show Login if not in signup mode
       <Login 
         setIsLoggedIn={setIsLoggedIn} 
         switchToSignup={() => setIsSignupMode(true)} 
       />
     )
   ) : (
-    // Main app content when logged in
+    // Wrap everything in a single parent div
     <div className="min-h-screen bg-gray-100 relative">
       {/* Header Section */}
       <div className="bg-gray-100 p-4">
@@ -118,108 +306,129 @@ function App() {
           <img src={Logo} alt="GreenList Logo" className="h-12 w-12" />
           <h1 className="text-3xl font-bold text-gray-700 ml-2">GreenList</h1>
         </div>
-
+    
         <div className="max-w-2xl mx-auto">
-          <button 
-            className="text-green-600 flex items-center mb-2"
-            onClick={() => setIsLoggedIn(false)}
-          >
-            <span className="mr-1">←</span> Voltar
-          </button>
+          <div className="flex justify-between items-center mb-2">
+            <button 
+              className="text-green-600 flex items-center"
+              onClick={handleLogout}
+            >
+              <span className="mr-1">←</span> Sair
+            </button>
+            {currentUser && (
+              <span className="text-gray-600">
+                Olá, {currentUser.name}
+              </span>
+            )}
+          </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Compras da semana
+            {currentList ? currentList.name : "Carregando..."}
           </h2>
         </div>
       </div>
       {/* End Header Section */}
-
+    
       {toast.show && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2">
+        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 ${
+          toast.type === "error" ? "bg-red-500" : "bg-green-500"
+        } text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2`}>
           <span>{toast.message}</span>
           <button
-            onClick={() => setToast({ show: false, message: "" })}
+            onClick={() => setToast({ show: false, message: "", type: "success" })}
             className="ml-2 text-white hover:text-gray-200"
           >
             ✕
           </button>
         </div>
       )}
-      <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6 animate-fade-in">
-        <form
-          onSubmit={
-            editingId
-              ? (e) => {
-                  e.preventDefault();
-                  updateItem(editingId);
-                }
-              : addItem
-          }
-          className="mb-4 sm:mb-6"
-        >
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input
-              type="text"
-              value={newItem}
-              onChange={(e) => setNewItem(e.target.value)}
-              placeholder="Adicione um item..."
-              className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-[#3D9A59] transition-colors text-sm sm:text-base"
-            />
-
-            {/* Botão de adicionar item */}
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#3D9A59] text-white rounded-lg hover:bg[#0e3f1d] transition-colors text-sm sm:text-base whitespace-nowrap"
-            >
-              {editingId ? "Update" : "Adicionar item"}
-            </button>
-          </div>
-        </form>
-
-        <ul className="space-y-2">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className={`flex items-center gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg animate-slide-in ${
-                item.completed ? "opacity-75" : ""
-              }`}
-            >
-              {renderCheckbox(item.completed, () => toggleItem(item.id))}
-              <span
-                className={`flex-1 text-sm sm:text-base ${
-                  item.completed
-                    ? "line-through text-gray-500"
-                    : "text-[#000000]"
-                }`}
-              >
-                {item.text}
-              </span>
+      
+      {isLoading ? (
+        <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
+          <p>Carregando...</p>
+        </div>
+      ) : (
+        <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6 animate-fade-in">
+          <form
+            onSubmit={
+              editingId
+                ? (e) => {
+                    e.preventDefault();
+                    updateItem(editingId);
+                  }
+                : addItem
+            }
+            className="mb-4 sm:mb-6"
+          >
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={newItem}
+                onChange={(e) => setNewItem(e.target.value)}
+                placeholder="Adicione um item..."
+                className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-[#3D9A59] transition-colors text-sm sm:text-base"
+              />
+    
               <button
-                onClick={() => startEditing(item.id, item.text)}
-                className="p-1.5 sm:p-2 text-secondary- hover:text-primary transition-colors"
+                type="submit"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#3D9A59] text-white rounded-lg hover:bg-[#2d7342] transition-colors text-sm sm:text-base whitespace-nowrap"
               >
-                ✏️
+                {editingId ? "Atualizar" : "Adicionar item"}
               </button>
+            </div>
+          </form>
+    
+          {items.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">
+              Sua lista está vazia. Adicione alguns itens!
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((item) => (
+                <li
+                  key={item.id}
+                  className={`flex items-center gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg animate-slide-in ${
+                    item.completed ? "opacity-75" : ""
+                  }`}
+                >
+                  {renderCheckbox(item.completed, () => toggleItem(item.id))}
+                  <span
+                    className={`flex-1 text-sm sm:text-base ${
+                      item.completed
+                        ? "line-through text-gray-500"
+                        : "text-[#000000]"
+                    }`}
+                  >
+                    {item.text}
+                  </span>
+                  <button
+                    onClick={() => startEditing(item.id, item.text)}
+                    className="p-1.5 sm:p-2 text-secondary- hover:text-primary transition-colors"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="p-1.5 sm:p-2 text-danger hover:text-red-600 transition-colors"
+                  >
+                    🗑️
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+    
+          {items.length > 0 && (
+            <div className="mt-4 sm:mt-6 text-center">
               <button
-                onClick={() => removeItem(item.id)}
-                className="p-1.5 sm:p-2 text-danger hover:text-red-600 transition-colors"
+                onClick={clearList}
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-danger bg-[#3D9A59] rounded-lg transition-colors"
               >
-                🗑️
+                <span className="text-[#ffffff]">Limpar lista</span>
               </button>
-            </li>
-          ))}
-        </ul>
-
-        {items.length > 0 && (
-          <div className="mt-4 sm:mt-6 text-center">
-            <button
-              onClick={clearList}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-danger bg-[#3D9A59] rounded-lg transition-colors"
-            >
-              <span className="text-[#ffffff]">Limpar lista</span>
-            </button>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
