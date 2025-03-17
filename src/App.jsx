@@ -48,17 +48,12 @@ function App() {
   const fetchUserLists = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/lists", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Using the API utility instead of axios directly
+      const response = await api.get("/api/lists");
       
-      // If user has lists, use the first one, otherwise create a default list
       if (response.data.length > 0) {
         setCurrentList(response.data[0]);
-        fetchListItems(response.data[0]._id);
-      } else {
-        createDefaultList();
+        fetchItems(response.data[0]._id);
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
@@ -68,45 +63,22 @@ function App() {
     }
   };
 
-  // Create a default shopping list for new users
-  const createDefaultList = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        "http://localhost:5000/api/lists",
-        { name: "Compras da semana" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      setCurrentList(response.data);
-      setItems([]);
-    } catch (error) {
-      console.error("Error creating default list:", error);
-      showToast("Erro ao criar lista padrão", "error");
-    }
-  };
-
   // Fetch items for a specific list
-  const fetchListItems = async (listId) => {
+  const fetchItems = async (listId) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:5000/api/lists/${listId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Using the API utility
+      const response = await api.get(`/api/lists/${listId}/items`);
       
-      if (response.data && response.data.items) {
-        // Transform backend items to match our frontend format
-        const transformedItems = response.data.items.map(item => ({
-          id: item._id,
-          text: item.name,
-          completed: item.completed
-        }));
-        
-        setItems(transformedItems);
-      }
+      // Transform the items to match your frontend structure
+      const transformedItems = response.data.map(item => ({
+        id: item._id,
+        text: item.name,
+        completed: item.completed
+      }));
+      
+      setItems(transformedItems);
     } catch (error) {
-      console.error("Error fetching list items:", error);
-      showToast("Erro ao carregar itens", "error");
+      console.error("Error fetching items:", error);
     }
   };
 
@@ -170,11 +142,8 @@ function App() {
       const itemToRemove = items.find(item => item.id === id);
       if (!itemToRemove || !currentList) return;
       
-      const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:5000/api/lists/${currentList._id}/items/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // Using the API utility
+      await api.delete(`/api/lists/${currentList._id}/items/${id}`);
       
       // Update local state
       setItems(items.filter(item => item.id !== id));
@@ -196,11 +165,10 @@ function App() {
     if (!newItem.trim() || !currentList) return;
     
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `http://localhost:5000/api/lists/${currentList._id}/items/${id}`,
-        { name: newItem.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
+      // Using the API utility
+      await api.put(
+        `/api/lists/${currentList._id}/items/${id}`,
+        { name: newItem.trim() }
       );
       
       // Update local state
@@ -223,14 +191,9 @@ function App() {
     
     if (window.confirm("Tem certeza de que deseja limpar toda a lista?")) {
       try {
-        const token = localStorage.getItem("token");
-        
-        // Delete each item individually
+        // Delete each item individually using the API utility
         for (const item of items) {
-          await axios.delete(
-            `http://localhost:5000/api/lists/${currentList._id}/items/${item.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+          await api.delete(`/api/lists/${currentList._id}/items/${item.id}`);
         }
         
         setItems([]);

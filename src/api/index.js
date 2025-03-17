@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Use the production URL
 const API_URL = 'https://greenlist.onrender.com';
 
 export const api = axios.create({
@@ -9,7 +10,7 @@ export const api = axios.create({
   },
 });
 
-// Interceptor to add authentication token
+// Add auth token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
