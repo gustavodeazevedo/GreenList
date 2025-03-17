@@ -4,7 +4,7 @@ import Logosvg from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
 import Fundo from "../images/GreenListFundo.svg";
-import axios from "axios";
+import api from "../api";
 
 function Login({ setIsLoggedIn, switchToSignup }) {
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ function Login({ setIsLoggedIn, switchToSignup }) {
     setIsLoading(true);
     
     try {
-      const response = await axios.post("http://localhost:5000/api/users/login", {
+      const response = await api.post("/api/users/login", {
         email,
         password
       });

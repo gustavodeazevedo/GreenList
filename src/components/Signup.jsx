@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Logosvg from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
-import axios from "axios";
+import api from "../api";
 
 function Signup({ setIsLoggedIn, switchToLogin }) {
   const [username, setUsername] = useState("");
@@ -25,13 +25,13 @@ function Signup({ setIsLoggedIn, switchToLogin }) {
     }
     
     try {
-      const response = await axios.post("http://localhost:5000/api/users/register", {
-        name: username, // Changed from name to username
+      const response = await api.post("/api/users/register", {
+        name: username,
         email,
         password
       });
       
-      // Certifique-se de que o token e os dados do usuário estão sendo armazenados corretamente
+      // Store user data and token in localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify({
         id: response.data.user._id,
@@ -40,12 +40,8 @@ function Signup({ setIsLoggedIn, switchToLogin }) {
       }));
       
       setIsLoading(false);
-      
-      // Using destructured props instead of props.setIsLoggedIn
       setIsLoggedIn(true);
-      
-      // Force a page reload to ensure state is updated
-      window.location.href = "/"; // Using href instead of reload for a cleaner navigation
+      window.location.href = "/";
     } catch (error) {
       setIsLoading(false);
       setError(error.response?.data?.message || "Erro ao criar conta");
