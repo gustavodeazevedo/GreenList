@@ -4,39 +4,43 @@ import Logosvg from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
 import Fundo from "../images/GreenListFundo.svg";
+import axios from "axios";
 
 function Login({ setIsLoggedIn, switchToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  // No componente Login, quando o login for bem-sucedido:
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Validate inputs
-    if (!email && !password) {
-      setError("Por favor, digite seu e-mail e senha");
-      return;
-    }
-
-    if (!email) {
-      setError("Por favor, entre com seu e-mail");
-      return;
-    }
-
-    if (!password) {
-      setError("Por favor , digite sua senha");
-      return;
-    }
-
-    // Simple validation - in a real app, you would check against a database
-    // For demo purposes, let's use a simple check
-    if (email === "user@example.com" && password === "password") {
-      // Successful login
-      setError("");
+    setIsLoading(true);
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/login", {
+        email,
+        password
+      });
+      
+      // Store user data and token in localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify({
+        id: response.data.user._id,
+        name: response.data.user.name,
+        email: response.data.user.email
+      }));
+      
+      setIsLoading(false);
+      
+      // Update the parent component's state
       setIsLoggedIn(true);
-    } else {
-      setError("E-mail ou senha incorretos");
+      
+      // Force a page reload to ensure state is updated
+      window.location.href = "/";
+    } catch (error) {
+      setIsLoading(false);
+      setError(error.response?.data?.message || "Erro ao fazer login");
     }
   };
 
@@ -53,7 +57,7 @@ function Login({ setIsLoggedIn, switchToSignup }) {
             <img src={User} alt="User icon" className="input-icon" />
             <input
               type="text"
-              placeholder="USERNAME"
+              placeholder="E-MAIL"
               className="login-input with-icon"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -65,15 +69,15 @@ function Login({ setIsLoggedIn, switchToSignup }) {
             <img src={Lock} alt="Lock icon" className="input-icon" />
             <input
               type="password"
-              placeholder="PASSWORD"
+              placeholder="SENHA"
               className="login-input with-icon"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
         </div>
-        <button type="submit" className="login-button">
-          LOGIN
+        <button type="submit" className="login-button" disabled={isLoading}>
+          {isLoading ? "CARREGANDO..." : "LOGIN"}
         </button>
         <a href="#" className="forgot-password" onClick={(e) => {
           e.preventDefault();

@@ -1,0 +1,6 @@
+// ... existing code ...
+
+// Make sure the user routes are registered with the correct path prefix
+app.use('/api/users', require('./routes/users'));
+
+// ... existing code ...
