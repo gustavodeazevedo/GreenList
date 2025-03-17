@@ -3,6 +3,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Logo from "../src/images/GreenListLogoSVG.svg";
 import axios from "axios";
+import api from "./api";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -113,18 +114,16 @@ function App() {
   const addItem = async (e) => {
     e.preventDefault();
     if (!newItem.trim() || !currentList) return;
-
+    
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `http://localhost:5000/api/lists/${currentList._id}/items`,
+      const response = await api.post(
+        `/api/lists/${currentList._id}/items`,
         {
           name: newItem.trim(),
           quantity: 1,
           unit: "unit",
           completed: false
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
       
       // Add the new item to our state
@@ -148,11 +147,9 @@ function App() {
       const item = items.find(item => item.id === id);
       if (!item || !currentList) return;
       
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `http://localhost:5000/api/lists/${currentList._id}/items/${id}`,
-        { completed: !item.completed },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.put(
+        `/api/lists/${currentList._id}/items/${id}`,
+        { completed: !item.completed }
       );
       
       // Update local state
