@@ -71,29 +71,36 @@ function App() {
   };
 
   // Fetch items for a specific list
+  // Buscar itens para uma lista específica
   const fetchItems = async (listId) => {
     if (!listId) return;
     
     try {
-      // Using the API utility
+      console.log('Buscando itens para a lista:', listId);
+      
+      // Usando o utilitário de API
       const response = await api.get(`/api/lists/${listId}/items`);
       
-      // Transform the items to match your frontend structure
+      console.log('Itens recebidos do servidor:', response.data);
+      
+      // Transformar os itens para corresponder à estrutura do frontend
       const transformedItems = response.data.map(item => ({
         id: item._id,
         text: item.name,
         completed: item.completed
       }));
       
+      console.log('Itens transformados:', transformedItems);
+      
       setItems(transformedItems);
     } catch (error) {
-      console.error("Error fetching items:", error);
-      // Don't show error toast here as it might be normal for a new list
+      console.error("Erro ao buscar itens:", error);
+      // Não mostrar toast de erro aqui, pois pode ser normal para uma nova lista
       setItems([]);
     }
   };
 
-  // Add a new item to the current list
+  // Adicionar um novo item à lista atual
   const addItem = async (e) => {
     e.preventDefault();
     if (!newItem.trim() || !currentList) return;
@@ -109,7 +116,7 @@ function App() {
         }
       );
       
-      // Add the new item to our state
+      // Adicionar o novo item ao nosso estado
       const newItemData = {
         id: response.data._id,
         text: response.data.name,
