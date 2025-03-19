@@ -48,23 +48,36 @@ function App() {
   const fetchUserLists = async () => {
     setIsLoading(true);
     try {
+      console.log('Buscando listas do usuário...');
       // Using the API utility instead of axios directly
       const response = await api.get("/api/lists");
+      console.log('Resposta recebida:', response.data);
       
       if (response.data.length > 0) {
         setCurrentList(response.data[0]);
         fetchItems(response.data[0]._id);
       } else {
+        console.log('Nenhuma lista encontrada, criando lista padrão...');
         // Create a default list if user has no lists
         const newListResponse = await api.post("/api/lists", {
           name: "Minha Lista de Compras"
         });
+        console.log('Nova lista criada:', newListResponse.data);
         setCurrentList(newListResponse.data);
         setItems([]);
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
-      showToast("Erro ao carregar listas", "error");
+      console.error("Detalhes do erro:", error.response?.data || error.message);
+      
+      // Verificar se o erro é de autenticação
+      if (error.response?.status === 401) {
+        console.log('Erro de autenticação, fazendo logout...');
+        handleLogout();
+        showToast("Sessão expirada, faça login novamente", "error");
+      } else {
+        showToast("Erro ao carregar listas: " + (error.response?.data?.message || error.message), "error");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -406,3 +419,9 @@ function App() {
 }
 
 export default App;
+
+// Adicione esta função antes do return no componente App
+const startEditing = (id, text) => {
+  setEditingId(id);
+  setNewItem(text);
+};

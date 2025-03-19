@@ -1,0 +1,41 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:5000', // Ajuste para a URL correta do seu servidor
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Adicionar interceptor para incluir o token em todas as requisições
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// Adicionar interceptor para tratar erros de resposta
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error);
+    
+    // Se o erro for 401 (não autorizado), limpar o localStorage
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      // Não redirecionamos aqui para evitar loops infinitos
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default api;
