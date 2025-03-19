@@ -64,37 +64,43 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Add an item to a list
-router.post('/:id/items', auth, async (req, res) => {
+// Adicionar um item a uma lista
+router.post('/:listId/items', auth, async (req, res) => {
   try {
-    const { name, quantity, unit } = req.body;
+    const list = await List.findById(req.params.listId);
     
-    const list = await List.findById(req.params.id);
-    
+    // Verificar se a lista existe e pertence ao usuário
     if (!list) {
-      return res.status(404).json({ message: 'List not found' });
+      return res.status(404).json({ message: 'Lista não encontrada' });
     }
     
-    // Check if the user is the owner or the list is shared with them
-    if (list.user.toString() !== req.user.id && 
-        !list.sharedWith.includes(req.user.id)) {
-      return res.status(403).json({ message: 'Not authorized to modify this list' });
+    if (list.owner.toString() !== req.user.id && !list.sharedWith.includes(req.user.id)) {
+      return res.status(403).json({ message: 'Acesso negado' });
     }
     
+    // Criar o novo item
     const newItem = {
-      name,
-      quantity: quantity || 1,
-      unit: unit || 'unit',
-      completed: false
+      name: req.body.name,
+      quantity: req.body.quantity || 1,
+      unit: req.body.unit || 'unit',
+      completed: req.body.completed || false
     };
     
+    // Adicionar o item à lista
     list.items.push(newItem);
-    await list.save();
     
-    res.status(201).json(list.items[list.items.length - 1]);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server error' });
+    // Salvar a lista atualizada
+    const updatedList = await list.save();
+    
+    // Retornar o item adicionado com seu ID
+    const addedItem = updatedList.items[updatedList.items.length - 1];
+    
+    console.log('Item adicionado com sucesso:', addedItem);
+    
+    res.status(201).json(addedItem);
+  } catch (error) {
+    console.error('Erro ao adicionar item:', error);
+    res.status(500).json({ message: 'Erro no servidor' });
   }
 });
 
@@ -163,6 +169,29 @@ router.delete('/:id/items/:itemId', auth, async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Obter todos os itens de uma lista
+router.get('/:listId/items', auth, async (req, res) => {
+  try {
+    const list = await List.findById(req.params.listId);
+    
+    // Verificar se a lista existe e pertence ao usuário
+    if (!list) {
+      return res.status(404).json({ message: 'Lista não encontrada' });
+    }
+    
+    if (list.owner.toString() !== req.user.id && !list.sharedWith.includes(req.user.id)) {
+      return res.status(403).json({ message: 'Acesso negado' });
+    }
+    
+    console.log('Enviando itens da lista:', list.items);
+    
+    res.json(list.items);
+  } catch (error) {
+    console.error('Erro ao buscar itens:', error);
+    res.status(500).json({ message: 'Erro no servidor' });
   }
 });
 
