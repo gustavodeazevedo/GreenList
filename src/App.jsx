@@ -54,6 +54,13 @@ function App() {
       if (response.data.length > 0) {
         setCurrentList(response.data[0]);
         fetchItems(response.data[0]._id);
+      } else {
+        // Create a default list if user has no lists
+        const newListResponse = await api.post("/api/lists", {
+          name: "Minha Lista de Compras"
+        });
+        setCurrentList(newListResponse.data);
+        setItems([]);
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
@@ -65,6 +72,8 @@ function App() {
 
   // Fetch items for a specific list
   const fetchItems = async (listId) => {
+    if (!listId) return;
+    
     try {
       // Using the API utility
       const response = await api.get(`/api/lists/${listId}/items`);
@@ -79,6 +88,8 @@ function App() {
       setItems(transformedItems);
     } catch (error) {
       console.error("Error fetching items:", error);
+      // Don't show error toast here as it might be normal for a new list
+      setItems([]);
     }
   };
 
@@ -152,12 +163,6 @@ function App() {
       console.error("Error removing item:", error);
       showToast("Erro ao remover item", "error");
     }
-  };
-
-  // Start editing an item
-  const startEditing = (id, text) => {
-    setEditingId(id);
-    setNewItem(text);
   };
 
   // Update an existing item
