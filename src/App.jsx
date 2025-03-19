@@ -16,12 +16,17 @@ function App() {
   const [currentList, setCurrentList] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const startEditing = (id, text) => {
+    setEditingId(id);
+    setNewItem(text);
+  };
+
   // Check if user is logged in on component mount
   // Vamos modificar o useEffect que verifica se o usuário está logado
   useEffect(() => {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
-    
+
     if (token && user) {
       try {
         // Adicione um try/catch para evitar erros de JSON inválido
@@ -48,35 +53,40 @@ function App() {
   const fetchUserLists = async () => {
     setIsLoading(true);
     try {
-      console.log('Buscando listas do usuário...');
+      console.log("Buscando listas do usuário...");
       // Using the API utility instead of axios directly
       const response = await api.get("/api/lists");
-      console.log('Resposta recebida:', response.data);
-      
+      console.log("Resposta recebida:", response.data);
+
       if (response.data.length > 0) {
         setCurrentList(response.data[0]);
         fetchItems(response.data[0]._id);
       } else {
-        console.log('Nenhuma lista encontrada, criando lista padrão...');
+        console.log("Nenhuma lista encontrada, criando lista padrão...");
         // Create a default list if user has no lists
         const newListResponse = await api.post("/api/lists", {
-          name: "Minha Lista de Compras"
+          name: "Minha Lista de Compras",
+          owner: currentUser.id, // Adicionando o ID do usuário como proprietário da lista
         });
-        console.log('Nova lista criada:', newListResponse.data);
+        console.log("Nova lista criada:", newListResponse.data);
         setCurrentList(newListResponse.data);
         setItems([]);
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
       console.error("Detalhes do erro:", error.response?.data || error.message);
-      
+
       // Verificar se o erro é de autenticação
       if (error.response?.status === 401) {
-        console.log('Erro de autenticação, fazendo logout...');
+        console.log("Erro de autenticação, fazendo logout...");
         handleLogout();
         showToast("Sessão expirada, faça login novamente", "error");
       } else {
-        showToast("Erro ao carregar listas: " + (error.response?.data?.message || error.message), "error");
+        showToast(
+          "Erro ao carregar listas: " +
+            (error.response?.data?.message || error.message),
+          "error"
+        );
       }
     } finally {
       setIsLoading(false);
@@ -87,24 +97,24 @@ function App() {
   // Buscar itens para uma lista específica
   const fetchItems = async (listId) => {
     if (!listId) return;
-    
+
     try {
-      console.log('Buscando itens para a lista:', listId);
-      
+      console.log("Buscando itens para a lista:", listId);
+
       // Usando o utilitário de API
       const response = await api.get(`/api/lists/${listId}/items`);
-      
-      console.log('Itens recebidos do servidor:', response.data);
-      
+
+      console.log("Itens recebidos do servidor:", response.data);
+
       // Transformar os itens para corresponder à estrutura do frontend
-      const transformedItems = response.data.map(item => ({
+      const transformedItems = response.data.map((item) => ({
         id: item._id,
         text: item.name,
-        completed: item.completed
+        completed: item.completed,
       }));
-      
-      console.log('Itens transformados:', transformedItems);
-      
+
+      console.log("Itens transformados:", transformedItems);
+
       setItems(transformedItems);
     } catch (error) {
       console.error("Erro ao buscar itens:", error);
@@ -117,25 +127,22 @@ function App() {
   const addItem = async (e) => {
     e.preventDefault();
     if (!newItem.trim() || !currentList) return;
-    
+
     try {
-      const response = await api.post(
-        `/api/lists/${currentList._id}/items`,
-        {
-          name: newItem.trim(),
-          quantity: 1,
-          unit: "unit",
-          completed: false
-        }
-      );
-      
+      const response = await api.post(`/api/lists/${currentList._id}/items`, {
+        name: newItem.trim(),
+        quantity: 1,
+        unit: "unit",
+        completed: false,
+      });
+
       // Adicionar o novo item ao nosso estado
       const newItemData = {
         id: response.data._id,
         text: response.data.name,
-        completed: response.data.completed
+        completed: response.data.completed,
       };
-      
+
       setItems([...items, newItemData]);
       setNewItem("");
     } catch (error) {
@@ -147,17 +154,16 @@ function App() {
   // Toggle item completion status
   const toggleItem = async (id) => {
     try {
-      const item = items.find(item => item.id === id);
+      const item = items.find((item) => item.id === id);
       if (!item || !currentList) return;
-      
-      await api.put(
-        `/api/lists/${currentList._id}/items/${id}`,
-        { completed: !item.completed }
-      );
-      
+
+      await api.put(`/api/lists/${currentList._id}/items/${id}`, {
+        completed: !item.completed,
+      });
+
       // Update local state
       setItems(
-        items.map(item =>
+        items.map((item) =>
           item.id === id ? { ...item, completed: !item.completed } : item
         )
       );
@@ -170,14 +176,14 @@ function App() {
   // Remove an item from the list
   const removeItem = async (id) => {
     try {
-      const itemToRemove = items.find(item => item.id === id);
+      const itemToRemove = items.find((item) => item.id === id);
       if (!itemToRemove || !currentList) return;
-      
+
       // Using the API utility
       await api.delete(`/api/lists/${currentList._id}/items/${id}`);
-      
+
       // Update local state
-      setItems(items.filter(item => item.id !== id));
+      setItems(items.filter((item) => item.id !== id));
       showToast(`Item "${itemToRemove.text}" foi excluído`, "success");
     } catch (error) {
       console.error("Error removing item:", error);
@@ -188,17 +194,16 @@ function App() {
   // Update an existing item
   const updateItem = async (id) => {
     if (!newItem.trim() || !currentList) return;
-    
+
     try {
       // Using the API utility
-      await api.put(
-        `/api/lists/${currentList._id}/items/${id}`,
-        { name: newItem.trim() }
-      );
-      
+      await api.put(`/api/lists/${currentList._id}/items/${id}`, {
+        name: newItem.trim(),
+      });
+
       // Update local state
       setItems(
-        items.map(item =>
+        items.map((item) =>
           item.id === id ? { ...item, text: newItem.trim() } : item
         )
       );
@@ -213,14 +218,14 @@ function App() {
   // Clear the entire list
   const clearList = async () => {
     if (!currentList) return;
-    
+
     if (window.confirm("Tem certeza de que deseja limpar toda a lista?")) {
       try {
         // Delete each item individually using the API utility
         for (const item of items) {
           await api.delete(`/api/lists/${currentList._id}/items/${item.id}`);
         }
-        
+
         setItems([]);
       } catch (error) {
         console.error("Error clearing list:", error);
@@ -244,9 +249,12 @@ function App() {
     setToast({
       show: true,
       message,
-      type
+      type,
     });
-    setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000);
+    setTimeout(
+      () => setToast({ show: false, message: "", type: "success" }),
+      3000
+    );
   };
 
   // Add a function to render custom checkbox
@@ -259,10 +267,28 @@ function App() {
           onChange={onChange}
           className="absolute opacity-0 w-5 h-5 cursor-pointer z-10"
         />
-        <div className={`w-5 h-5 rounded-lg border ${isChecked ? 'bg-[#3D9A59] border-[#3D9A59]' : 'bg-white border-gray-300'} flex items-center justify-center`}>
+        <div
+          className={`w-5 h-5 rounded-lg border ${
+            isChecked
+              ? "bg-[#3D9A59] border-[#3D9A59]"
+              : "bg-white border-gray-300"
+          } flex items-center justify-center`}
+        >
           {isChecked && (
-            <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="10"
+              height="8"
+              viewBox="0 0 10 8"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1 4L3.5 6.5L9 1"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           )}
         </div>
@@ -272,14 +298,14 @@ function App() {
 
   return !isLoggedIn ? (
     isSignupMode ? (
-      <Signup 
-        setIsLoggedIn={setIsLoggedIn} 
-        switchToLogin={() => setIsSignupMode(false)} 
+      <Signup
+        setIsLoggedIn={setIsLoggedIn}
+        switchToLogin={() => setIsSignupMode(false)}
       />
     ) : (
-      <Login 
-        setIsLoggedIn={setIsLoggedIn} 
-        switchToSignup={() => setIsSignupMode(true)} 
+      <Login
+        setIsLoggedIn={setIsLoggedIn}
+        switchToSignup={() => setIsSignupMode(true)}
       />
     )
   ) : (
@@ -291,19 +317,17 @@ function App() {
           <img src={Logo} alt="GreenList Logo" className="h-12 w-12" />
           <h1 className="text-3xl font-bold text-gray-700 ml-2">GreenList</h1>
         </div>
-    
+
         <div className="max-w-2xl mx-auto">
           <div className="flex justify-between items-center mb-2">
-            <button 
+            <button
               className="text-green-600 flex items-center"
               onClick={handleLogout}
             >
               <span className="mr-1">←</span> Sair
             </button>
             {currentUser && (
-              <span className="text-gray-600">
-                Olá, {currentUser.name}
-              </span>
+              <span className="text-gray-600">Olá, {currentUser.name}</span>
             )}
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
@@ -312,21 +336,25 @@ function App() {
         </div>
       </div>
       {/* End Header Section */}
-    
+
       {toast.show && (
-        <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 ${
-          toast.type === "error" ? "bg-red-500" : "bg-green-500"
-        } text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2`}>
+        <div
+          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 ${
+            toast.type === "error" ? "bg-red-500" : "bg-green-500"
+          } text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2`}
+        >
           <span>{toast.message}</span>
           <button
-            onClick={() => setToast({ show: false, message: "", type: "success" })}
+            onClick={() =>
+              setToast({ show: false, message: "", type: "success" })
+            }
             className="ml-2 text-white hover:text-gray-200"
           >
             ✕
           </button>
         </div>
       )}
-      
+
       {isLoading ? (
         <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
           <p>Carregando...</p>
@@ -352,7 +380,7 @@ function App() {
                 placeholder="Adicione um item..."
                 className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-[#3D9A59] transition-colors text-sm sm:text-base"
               />
-    
+
               <button
                 type="submit"
                 className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#3D9A59] text-white rounded-lg hover:bg-[#2d7342] transition-colors text-sm sm:text-base whitespace-nowrap"
@@ -361,7 +389,7 @@ function App() {
               </button>
             </div>
           </form>
-    
+
           {items.length === 0 ? (
             <p className="text-center text-gray-500 py-4">
               Sua lista está vazia. Adicione alguns itens!
@@ -401,7 +429,7 @@ function App() {
               ))}
             </ul>
           )}
-    
+
           {items.length > 0 && (
             <div className="mt-4 sm:mt-6 text-center">
               <button
@@ -419,9 +447,3 @@ function App() {
 }
 
 export default App;
-
-// Adicione esta função antes do return no componente App
-const startEditing = (id, text) => {
-  setEditingId(id);
-  setNewItem(text);
-};
