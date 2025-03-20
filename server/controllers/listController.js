@@ -1,4 +1,4 @@
-import ShoppingList from '../models/ShoppingList.js';
+import List from '../models/List.js';
 import User from '../models/User.js';
 
 // @desc    Create a new shopping list
@@ -8,7 +8,7 @@ export const createList = async (req, res) => {
     try {
         const { name, items } = req.body;
 
-        const list = await ShoppingList.create({
+        const list = await List.create({
             name,
             owner: req.user._id,
             items: items || []
@@ -27,7 +27,7 @@ export const createList = async (req, res) => {
 export const getLists = async (req, res) => {
     try {
         // Find lists where user is owner or in sharedWith array
-        const lists = await ShoppingList.find({
+        const lists = await List.find({
             $or: [
                 { owner: req.user._id },
                 { sharedWith: req.user._id }
@@ -46,7 +46,7 @@ export const getLists = async (req, res) => {
 // @access  Private
 export const getListById = async (req, res) => {
     try {
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -71,7 +71,7 @@ export const getListById = async (req, res) => {
 export const updateList = async (req, res) => {
     try {
         const { name, items } = req.body;
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -99,7 +99,7 @@ export const updateList = async (req, res) => {
 // @access  Private
 export const deleteList = async (req, res) => {
     try {
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -124,7 +124,7 @@ export const deleteList = async (req, res) => {
 export const addItem = async (req, res) => {
     try {
         const { text } = req.body;
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -159,7 +159,7 @@ export const addItem = async (req, res) => {
 export const updateItem = async (req, res) => {
     try {
         const { text, completed } = req.body;
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -194,7 +194,7 @@ export const updateItem = async (req, res) => {
 // @access  Private
 export const removeItem = async (req, res) => {
     try {
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -228,7 +228,7 @@ export const removeItem = async (req, res) => {
 export const shareList = async (req, res) => {
     try {
         const { email } = req.body;
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
@@ -267,7 +267,7 @@ export const shareList = async (req, res) => {
 export const removeSharedUser = async (req, res) => {
     try {
         const { userId } = req.body;
-        const list = await ShoppingList.findById(req.params.id);
+        const list = await List.findById(req.params.id);
 
         if (!list) {
             return res.status(404).json({ message: 'List not found' });
