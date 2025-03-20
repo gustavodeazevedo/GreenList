@@ -20,7 +20,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
   color: var(--text-color);
   background-color: var(--background-color);
@@ -35,7 +35,8 @@ a:hover {
   text-decoration: underline;
 }
 
-button, .btn {
+button,
+.btn {
   cursor: pointer;
   padding: 8px 16px;
   border: none;
@@ -46,23 +47,27 @@ button, .btn {
   transition: background-color 0.3s;
 }
 
-button:hover, .btn:hover {
+button:hover,
+.btn:hover {
   background-color: var(--primary-dark);
 }
 
-button:disabled, .btn:disabled {
+button:disabled,
+.btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-input, select {
+input,
+select {
   padding: 8px 12px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 14px;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: var(--primary-color);
 }
@@ -103,8 +108,12 @@ input:focus, select:focus {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error and Success Messages */
@@ -131,13 +140,20 @@ input:focus, select:focus {
 }
 
 @keyframes fadeOut {
-  0% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* Error Container */
-.error-container, .not-found-container {
+.error-container,
+.not-found-container {
   text-align: center;
   padding: 40px 20px;
   max-width: 500px;
@@ -147,12 +163,14 @@ input:focus, select:focus {
   box-shadow: var(--shadow);
 }
 
-.error-container h2, .not-found-container h2 {
+.error-container h2,
+.not-found-container h2 {
   color: var(--error-color);
   margin-bottom: 15px;
 }
 
-.error-actions, .not-found-actions {
+.error-actions,
+.not-found-actions {
   margin-top: 20px;
   display: flex;
   justify-content: center;
@@ -177,7 +195,8 @@ input:focus, select:focus {
 }
 
 /* Login and Register */
-.login-container, .register-container {
+.login-container,
+.register-container {
   max-width: 400px;
   margin: 40px auto;
   padding: 30px;
@@ -186,23 +205,27 @@ input:focus, select:focus {
   box-shadow: var(--shadow);
 }
 
-.login-container h2, .register-container h2 {
+.login-container h2,
+.register-container h2 {
   text-align: center;
   margin-bottom: 20px;
   color: var(--primary-color);
 }
 
-.login-container form, .register-container form {
+.login-container form,
+.register-container form {
   width: 100%;
 }
 
-.login-container button, .register-container button {
+.login-container button,
+.register-container button {
   width: 100%;
   padding: 10px;
   margin-top: 10px;
 }
 
-.login-container p, .register-container p {
+.login-container p,
+.register-container p {
   text-align: center;
   margin-top: 20px;
 }
@@ -288,7 +311,8 @@ input:focus, select:focus {
   margin-top: 15px;
 }
 
-.view-btn, .edit-btn {
+.view-btn,
+.edit-btn {
   padding: 6px 12px;
   border-radius: 4px;
   text-decoration: none;
@@ -344,9 +368,18 @@ input:focus, select:focus {
   .list-content {
     grid-template-columns: 1fr;
   }
+
+  .list-detail-container {
+    padding: 15px;
+  }
+
+  .list-header h1 {
+    font-size: 24px;
+  }
 }
 
-.items-section, .share-section {
+.items-section,
+.share-section {
   background-color: white;
   border-radius: 8px;
   padding: 20px;
@@ -376,6 +409,11 @@ input:focus, select:focus {
 
 .item-check {
   margin-right: 15px;
+}
+
+.item-check input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
 }
 
 .item-details {
@@ -419,6 +457,41 @@ input:focus, select:focus {
   .form-row {
     grid-template-columns: 1fr;
   }
+
+  .item {
+    padding: 15px 0;
+  }
+
+  .item-check input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+
+  .item-name {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .item-quantity {
+    font-size: 16px;
+  }
+
+  .delete-item-btn {
+    padding: 8px 15px;
+    font-size: 16px;
+  }
+
+  input,
+  select,
+  button {
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+
+  .add-item-form h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
 }
 
 .empty-list {
@@ -457,7 +530,8 @@ input:focus, select:focus {
 }
 
 /* Create and Edit List */
-.create-list-container, .edit-list-container {
+.create-list-container,
+.edit-list-container {
   max-width: 600px;
   margin: 40px auto;
   padding: 30px;
@@ -466,7 +540,8 @@ input:focus, select:focus {
   box-shadow: var(--shadow);
 }
 
-.create-list-container h1, .edit-list-container h1 {
+.create-list-container h1,
+.edit-list-container h1 {
   margin-bottom: 20px;
   color: var(--primary-color);
 }
@@ -491,9 +566,39 @@ input:focus, select:focus {
     flex-direction: column;
     gap: 10px;
   }
-  
-  .form-actions button, .form-actions a {
+
+  .form-actions button,
+  .form-actions a {
     width: 100%;
     text-align: center;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .list-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .back-btn,
+  .edit-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+
+  .items-section,
+  .share-section {
+    padding: 20px 15px;
+  }
+
+  .items-section h2,
+  .share-section h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
   }
 }
