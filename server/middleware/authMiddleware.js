@@ -14,8 +14,11 @@ export const protect = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             // Get user from token
-            req.user = await User.findById(decoded.id).select('-password');
-
+            const user = await User.findById(decoded.id).select('-password');
+            if (!user) {
+                return res.status(401).json({ message: 'Usuário não encontrado' });
+            }
+            req.user = user;
             next();
         } catch (error) {
             console.error('Auth middleware error:', error);
