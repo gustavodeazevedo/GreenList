@@ -16,11 +16,6 @@ function App() {
   const [currentList, setCurrentList] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const startEditing = (id, text) => {
-    setEditingId(id);
-    setNewItem(text);
-  };
-
   // Check if user is logged in on component mount
   // Vamos modificar o useEffect que verifica se o usuário está logado
   useEffect(() => {
@@ -31,7 +26,6 @@ function App() {
       try {
         // Adicione um try/catch para evitar erros de JSON inválido
         const parsedUser = JSON.parse(user);
-        console.log("Usuário recuperado do localStorage:", parsedUser);
         setIsLoggedIn(true);
         setCurrentUser(parsedUser);
       } catch (error) {
@@ -54,102 +48,47 @@ function App() {
   const fetchUserLists = async () => {
     setIsLoading(true);
     try {
-      console.log('Buscando listas do usuário...');
-      console.log('Current user antes da requisição:', currentUser);
-      
       // Using the API utility instead of axios directly
       const response = await api.get("/api/lists");
-      console.log('Resposta recebida:', response.data);
-      
+
       if (response.data.length > 0) {
         setCurrentList(response.data[0]);
         fetchItems(response.data[0]._id);
       } else {
-        console.log('Nenhuma lista encontrada, criando lista padrão...');
-        console.log('Current user para criação da lista:', currentUser);
-        
-        // Make sure we have a valid user ID
-        if (!currentUser) {
-          console.error('User object is missing, cannot create list');
-          showToast("Erro: Dados do usuário não encontrados. Tente fazer login novamente.", "error");
-          handleLogout();
-          return;
-        }
-        
-        // Verificar qual propriedade contém o ID do usuário
-        const userId = currentUser.id || currentUser._id;
-        
-        if (!userId) {
-          console.error('User ID is missing, cannot create list');
-          console.error('User object:', currentUser);
-          showToast("Erro: ID do usuário não encontrado. Tente fazer login novamente.", "error");
-          handleLogout();
-          return;
-        }
-        
         // Create a default list if user has no lists
-        try {
-          const newListResponse = await api.post("/api/lists", {
-            name: "Minha Lista de Compras",
-            owner: userId
-          });
-          
-          console.log('Nova lista criada:', newListResponse.data);
-          setCurrentList(newListResponse.data);
-          setItems([]);
-        } catch (listError) {
-          console.error("Error creating default list:", listError);
-          console.error("List creation error details:", listError.response?.data || listError.message);
-          showToast("Erro ao criar lista padrão: " + (listError.response?.data?.message || listError.message), "error");
-        }
+        const newListResponse = await api.post("/api/lists", {
+          name: "Minha Lista de Compras",
+        });
+        setCurrentList(newListResponse.data);
+        setItems([]);
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
-      console.error("Detalhes do erro:", error.response?.data || error.message);
-      
-      // Verificar se o erro é de autenticação
-      if (error.response?.status === 401) {
-        console.log('Erro de autenticação, fazendo logout...');
-        handleLogout();
-        showToast("Sessão expirada, faça login novamente", "error");
-      } else {
-        showToast(
-          "Erro ao carregar listas: " +
-            (error.response?.data?.message || error.message),
-          "error"
-        );
-      }
+      showToast("Erro ao carregar listas", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
   // Fetch items for a specific list
-  // Buscar itens para uma lista específica
   const fetchItems = async (listId) => {
     if (!listId) return;
 
     try {
-      console.log("Buscando itens para a lista:", listId);
-
-      // Usando o utilitário de API
+      // Using the API utility
       const response = await api.get(`/api/lists/${listId}/items`);
 
-      console.log("Itens recebidos do servidor:", response.data);
-
-      // Transformar os itens para corresponder à estrutura do frontend
+      // Transform the items to match your frontend structure
       const transformedItems = response.data.map((item) => ({
         id: item._id,
         text: item.name,
         completed: item.completed,
       }));
 
-      console.log("Itens transformados:", transformedItems);
-
       setItems(transformedItems);
     } catch (error) {
-      console.error("Erro ao buscar itens:", error);
-      // Não mostrar toast de erro aqui, pois pode ser normal para uma nova lista
+      console.error("Error fetching items:", error);
+      // Don't show error toast here as it might be normal for a new list
       setItems([]);
     }
   };
