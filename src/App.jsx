@@ -53,32 +53,49 @@ function App() {
   const fetchUserLists = async () => {
     setIsLoading(true);
     try {
-      console.log("Buscando listas do usuário...");
+      console.log('Buscando listas do usuário...');
       // Using the API utility instead of axios directly
       const response = await api.get("/api/lists");
-      console.log("Resposta recebida:", response.data);
-
+      console.log('Resposta recebida:', response.data);
+      
       if (response.data.length > 0) {
         setCurrentList(response.data[0]);
         fetchItems(response.data[0]._id);
       } else {
-        console.log("Nenhuma lista encontrada, criando lista padrão...");
+        console.log('Nenhuma lista encontrada, criando lista padrão...');
+        console.log('Current user:', currentUser);
+        
+        // Make sure we have a valid user ID
+        if (!currentUser || !currentUser.id) {
+          console.error('User ID is missing, cannot create list');
+          showToast("Erro: ID do usuário não encontrado. Tente fazer login novamente.", "error");
+          handleLogout();
+          return;
+        }
+        
         // Create a default list if user has no lists
-        const newListResponse = await api.post("/api/lists", {
-          name: "Minha Lista de Compras",
-          owner: currentUser.id, // Adicionando o ID do usuário como proprietário da lista
-        });
-        console.log("Nova lista criada:", newListResponse.data);
-        setCurrentList(newListResponse.data);
-        setItems([]);
+        try {
+          const newListResponse = await api.post("/api/lists", {
+            name: "Minha Lista de Compras",
+            owner: currentUser.id
+          });
+          
+          console.log('Nova lista criada:', newListResponse.data);
+          setCurrentList(newListResponse.data);
+          setItems([]);
+        } catch (listError) {
+          console.error("Error creating default list:", listError);
+          console.error("List creation error details:", listError.response?.data || listError.message);
+          showToast("Erro ao criar lista padrão: " + (listError.response?.data?.message || listError.message), "error");
+        }
       }
     } catch (error) {
       console.error("Error fetching lists:", error);
       console.error("Detalhes do erro:", error.response?.data || error.message);
-
+      
       // Verificar se o erro é de autenticação
       if (error.response?.status === 401) {
-        console.log("Erro de autenticação, fazendo logout...");
+        console.log('Erro de autenticação, fazendo logout...');
         handleLogout();
         showToast("Sessão expirada, faça login novamente", "error");
       } else {
