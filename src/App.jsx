@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import ResetPassword from "./components/ResetPassword";
 import Logo from "../src/images/GreenListLogoSVG.svg";
 import axios from "axios";
 import api from "./api";
@@ -272,19 +279,26 @@ function App() {
     );
   };
 
-  return !isLoggedIn ? (
-    isSignupMode ? (
-      <Signup
-        setIsLoggedIn={setIsLoggedIn}
-        switchToLogin={() => setIsSignupMode(false)}
-      />
-    ) : (
-      <Login
-        setIsLoggedIn={setIsLoggedIn}
-        switchToSignup={() => setIsSignupMode(true)}
-      />
-    )
-  ) : (
+  return (
+    <Router>
+      <Routes>
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route
+          path="/"
+          element={
+            !isLoggedIn ? (
+              isSignupMode ? (
+                <Signup
+                  setIsLoggedIn={setIsLoggedIn}
+                  switchToLogin={() => setIsSignupMode(false)}
+                />
+              ) : (
+                <Login
+                  setIsLoggedIn={setIsLoggedIn}
+                  switchToSignup={() => setIsSignupMode(true)}
+                />
+              )
+            ) : (
     // Wrap everything in a single parent div
     <div className="min-h-screen bg-gray-100 relative">
       {/* Header Section */}
