@@ -16,35 +16,45 @@ function Login({ setIsLoggedIn, switchToSignup }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       const response = await api.post("/api/users/login", {
         email,
-        password
+        password,
       });
-      
+
       console.log("Resposta do login:", response.data);
-      
+
       // Verificar a estrutura da resposta para garantir que temos o ID do usuário
+      if (!response.data.user || !response.data.user._id) {
+        console.error(
+          "Resposta do servidor não contém ID do usuário:",
+          response.data
+        );
+        setError("Erro: Resposta do servidor incompleta");
+        setIsLoading(false);
+        return;
+      }
+
       const userData = {
         id: response.data.user._id,
         name: response.data.user.name,
-        email: response.data.user.email
+        email: response.data.user.email,
       };
-      
+
       console.log("Dados do usuário a serem armazenados:", userData);
-      
+
       // Store user data and token in localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(userData));
-      
+
       setIsLoading(false);
-      
+
       // Update the parent component's state
       setIsLoggedIn(true);
-      
-      // Force a page reload to ensure state is updated
-      window.location.href = "/";
+
+      // Não recarregar a página para evitar problemas de estado
+      // window.location.href = "/";
     } catch (error) {
       setIsLoading(false);
       setError(error.response?.data?.message || "Erro ao fazer login");
@@ -86,10 +96,14 @@ function Login({ setIsLoggedIn, switchToSignup }) {
         <button type="submit" className="login-button" disabled={isLoading}>
           {isLoading ? "CARREGANDO..." : "LOGIN"}
         </button>
-        <a href="#" className="forgot-password" onClick={(e) => {
-          e.preventDefault();
-          switchToSignup();
-        }}>
+        <a
+          href="#"
+          className="forgot-password"
+          onClick={(e) => {
+            e.preventDefault();
+            switchToSignup();
+          }}
+        >
           Não tem uma conta? Cadastre-se
         </a>
       </form>
