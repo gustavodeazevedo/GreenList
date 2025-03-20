@@ -23,13 +23,20 @@ function Login({ setIsLoggedIn, switchToSignup }) {
         password
       });
       
-      // Store user data and token in localStorage
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify({
+      console.log("Resposta do login:", response.data);
+      
+      // Verificar a estrutura da resposta para garantir que temos o ID do usuário
+      const userData = {
         id: response.data.user._id,
         name: response.data.user.name,
         email: response.data.user.email
-      }));
+      };
+      
+      console.log("Dados do usuário a serem armazenados:", userData);
+      
+      // Store user data and token in localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(userData));
       
       setIsLoading(false);
       

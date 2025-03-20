@@ -31,6 +31,7 @@ function App() {
       try {
         // Adicione um try/catch para evitar erros de JSON inválido
         const parsedUser = JSON.parse(user);
+        console.log("Usuário recuperado do localStorage:", parsedUser);
         setIsLoggedIn(true);
         setCurrentUser(parsedUser);
       } catch (error) {
@@ -54,6 +55,8 @@ function App() {
     setIsLoading(true);
     try {
       console.log('Buscando listas do usuário...');
+      console.log('Current user antes da requisição:', currentUser);
+      
       // Using the API utility instead of axios directly
       const response = await api.get("/api/lists");
       console.log('Resposta recebida:', response.data);
@@ -63,11 +66,22 @@ function App() {
         fetchItems(response.data[0]._id);
       } else {
         console.log('Nenhuma lista encontrada, criando lista padrão...');
-        console.log('Current user:', currentUser);
+        console.log('Current user para criação da lista:', currentUser);
         
         // Make sure we have a valid user ID
-        if (!currentUser || !currentUser.id) {
+        if (!currentUser) {
+          console.error('User object is missing, cannot create list');
+          showToast("Erro: Dados do usuário não encontrados. Tente fazer login novamente.", "error");
+          handleLogout();
+          return;
+        }
+        
+        // Verificar qual propriedade contém o ID do usuário
+        const userId = currentUser.id || currentUser._id;
+        
+        if (!userId) {
           console.error('User ID is missing, cannot create list');
+          console.error('User object:', currentUser);
           showToast("Erro: ID do usuário não encontrado. Tente fazer login novamente.", "error");
           handleLogout();
           return;
@@ -77,7 +91,7 @@ function App() {
         try {
           const newListResponse = await api.post("/api/lists", {
             name: "Minha Lista de Compras",
-            owner: currentUser.id
+            owner: userId
           });
           
           console.log('Nova lista criada:', newListResponse.data);
