@@ -23,39 +23,63 @@ function Login({ setIsLoggedIn, switchToSignup }) {
         password,
       });
 
-      console.log("Resposta do login:", response.data);
+      console.log("Resposta do login (completa):", response);
+      console.log("Resposta do login (data):", response.data);
 
-      // Verificar a estrutura da resposta para garantir que temos o ID do usuário
-      if (!response.data.user || !response.data.user._id) {
-        console.error(
-          "Resposta do servidor não contém ID do usuário:",
-          response.data
+      // Vamos inspecionar a estrutura exata da resposta
+      let userId = null;
+      let userName = null;
+      let userEmail = null;
+      let token = null;
+
+      // Verificar diferentes possíveis estruturas da resposta
+      if (response.data.user && response.data.user._id) {
+        // Estrutura esperada: { user: { _id, name, email }, token }
+        userId = response.data.user._id;
+        userName = response.data.user.name;
+        userEmail = response.data.user.email;
+        token = response.data.token;
+      } else if (response.data._id) {
+        // Estrutura alternativa: { _id, name, email, token }
+        userId = response.data._id;
+        userName = response.data.name;
+        userEmail = response.data.email;
+        token = response.data.token;
+      } else if (response.data.id) {
+        // Outra estrutura possível: { id, name, email, token }
+        userId = response.data.id;
+        userName = response.data.name;
+        userEmail = response.data.email;
+        token = response.data.token;
+      }
+
+      if (!userId || !token) {
+        console.error("Estrutura da resposta não reconhecida:", response.data);
+        setError(
+          "Erro: Não foi possível extrair os dados do usuário da resposta"
         );
-        setError("Erro: Resposta do servidor incompleta");
         setIsLoading(false);
         return;
       }
 
       const userData = {
-        id: response.data.user._id,
-        name: response.data.user.name,
-        email: response.data.user.email,
+        id: userId,
+        name: userName || "Usuário",
+        email: userEmail || email,
       };
 
       console.log("Dados do usuário a serem armazenados:", userData);
 
       // Store user data and token in localStorage
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
 
       setIsLoading(false);
 
       // Update the parent component's state
       setIsLoggedIn(true);
-
-      // Não recarregar a página para evitar problemas de estado
-      // window.location.href = "/";
     } catch (error) {
+      console.error("Erro completo:", error);
       setIsLoading(false);
       setError(error.response?.data?.message || "Erro ao fazer login");
     }
