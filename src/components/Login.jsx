@@ -5,37 +5,43 @@ import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
 import Fundo from "../images/GreenListFundo.svg";
 import api from "../api";
+import ForgotPassword from "./ForgotPassword";
+import Signup from "./Signup";
 
 function Login({ setIsLoggedIn, switchToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // No componente Login, quando o login for bem-sucedido:
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       const response = await api.post("/api/users/login", {
         email,
-        password
+        password,
       });
-      
+
       // Store user data and token in localStorage
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify({
-        id: response.data.user._id,
-        name: response.data.user.name,
-        email: response.data.user.email
-      }));
-      
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: response.data.user._id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+        })
+      );
+
       setIsLoading(false);
-      
+
       // Update the parent component's state
       setIsLoggedIn(true);
-      
+
       // Force a page reload to ensure state is updated
       window.location.href = "/";
     } catch (error) {
@@ -43,6 +49,12 @@ function Login({ setIsLoggedIn, switchToSignup }) {
       setError(error.response?.data?.message || "Erro ao fazer login");
     }
   };
+
+  if (showForgotPassword) {
+    return (
+      <ForgotPassword switchToLogin={() => setShowForgotPassword(false)} />
+    );
+  }
 
   return (
     <div className="login-container">
@@ -79,12 +91,28 @@ function Login({ setIsLoggedIn, switchToSignup }) {
         <button type="submit" className="login-button" disabled={isLoading}>
           {isLoading ? "CARREGANDO..." : "LOGIN"}
         </button>
-        <a href="#" className="forgot-password" onClick={(e) => {
-          e.preventDefault();
-          switchToSignup();
-        }}>
-          Não tem uma conta? Cadastre-se
-        </a>
+        <div className="links-container">
+          <a
+            href="#"
+            className="forgot-password"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowForgotPassword(true);
+            }}
+          >
+            Esqueci minha senha
+          </a>
+          <a
+            href="#"
+            className="forgot-password"
+            onClick={(e) => {
+              e.preventDefault();
+              switchToSignup();
+            }}
+          >
+            Não tem uma conta? Cadastre-se
+          </a>
+        </div>
       </form>
     </div>
   );
