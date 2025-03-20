@@ -459,38 +459,38 @@ select:focus {
   }
 
   .item {
-    padding: 15px 0;
+    padding: 18px 0;
   }
 
   .item-check input[type="checkbox"] {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 
   .item-name {
-    font-size: 18px;
-    margin-bottom: 4px;
+    font-size: 20px;
+    margin-bottom: 6px;
   }
 
   .item-quantity {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .delete-item-btn {
-    padding: 8px 15px;
-    font-size: 16px;
+    padding: 10px 18px;
+    font-size: 18px;
   }
 
   input,
   select,
   button {
-    padding: 12px 16px;
-    font-size: 16px;
+    padding: 14px 18px;
+    font-size: 18px;
   }
 
   .add-item-form h3 {
-    font-size: 20px;
-    margin-bottom: 15px;
+    font-size: 22px;
+    margin-bottom: 18px;
   }
 }
 
@@ -564,19 +564,21 @@ select:focus {
 @media (max-width: 480px) {
   .form-actions {
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
   }
 
   .form-actions button,
   .form-actions a {
     width: 100%;
     text-align: center;
+    padding: 15px;
+    font-size: 18px;
   }
 
   .list-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+    gap: 20px;
   }
 
   .list-actions {
@@ -587,18 +589,76 @@ select:focus {
 
   .back-btn,
   .edit-btn {
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 12px 20px;
+    font-size: 18px;
   }
 
   .items-section,
   .share-section {
-    padding: 20px 15px;
+    padding: 25px 20px;
   }
 
   .items-section h2,
   .share-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-container {
+    padding: 15px;
+  }
+  
+  .list-card {
+    padding: 25px;
+  }
+  
+  .list-card h3 {
     font-size: 22px;
     margin-bottom: 15px;
   }
+  
+  .list-actions .view-btn,
+  .list-actions .edit-btn,
+  .list-actions .delete-btn {
+    padding: 12px 18px;
+    font-size: 16px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+  button,
+  .btn {
+    padding: 15px 20px;
+    font-size: 18px;
+  }
+  
+  input,
+  select {
+    padding: 15px;
+    font-size: 18px;
+  }
+  
+  .item-check input[type="checkbox"] {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .item-name {
+    font-size: 22px;
+  }
+  
+  .item-quantity {
+    font-size: 18px;
+  }
+  
+  .delete-item-btn {
+    padding: 12px 20px;
+    font-size: 20px;
+  }
+  
+  .list-header h1 {
+    font-size: 26px;
+  }
+}
 }
