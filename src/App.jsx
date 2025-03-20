@@ -185,6 +185,12 @@ function App() {
     }
   };
 
+  // Start editing an item
+  const startEditing = (id, text) => {
+    setEditingId(id);
+    setNewItem(text);
+  };
+
   // Clear the entire list
   const clearList = async () => {
     if (!currentList) return;
