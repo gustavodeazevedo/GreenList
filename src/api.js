@@ -28,6 +28,40 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => {
     console.log(`Successful response from: ${response.config.url}`);
+    
+    // Adicionar log detalhado para respostas de login
+    if (response.config.url.includes('/api/users/login')) {
+      console.log('Login response structure:', {
+        hasUser: !!response.data.user,
+        hasToken: !!response.data.token,
+        dataKeys: Object.keys(response.data),
+        fullData: response.data
+      });
+      
+      // Se a resposta for de login, vamos tentar extrair e formatar os dados do usuário
+      if (response.data) {
+        try {
+          // Extrair dados do usuário com base na estrutura da resposta
+          const userData = {
+            id: response.data.user?._id || response.data._id || response.data.id,
+            name: response.data.user?.name || response.data.name || 'Usuário',
+            email: response.data.user?.email || response.data.email
+          };
+          
+          const token = response.data.token;
+          
+          if (userData.id && token) {
+            console.log('Extracted user data:', userData);
+            // Armazenar dados formatados na resposta para uso posterior
+            response.data.extractedUserData = userData;
+            response.data.extractedToken = token;
+          }
+        } catch (err) {
+          console.error('Error extracting user data:', err);
+        }
+      }
+    }
+    
     return response;
   },
   error => {

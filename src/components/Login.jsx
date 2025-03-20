@@ -25,13 +25,32 @@ function Login({ setIsLoggedIn, switchToSignup }) {
 
       console.log("Resposta do login (completa):", response);
       console.log("Resposta do login (data):", response.data);
-
+      
+      // Usar os dados extraídos pelo interceptor, se disponíveis
+      if (response.data.extractedUserData && response.data.extractedToken) {
+        const userData = response.data.extractedUserData;
+        const token = response.data.extractedToken;
+        
+        console.log("Dados do usuário extraídos:", userData);
+        
+        // Store user data and token in localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(userData));
+        
+        setIsLoading(false);
+        
+        // Update the parent component's state
+        setIsLoggedIn(true);
+        return;
+      }
+      
+      // Caso o interceptor não tenha conseguido extrair os dados, tentar extrair aqui
       // Vamos inspecionar a estrutura exata da resposta
       let userId = null;
       let userName = null;
       let userEmail = null;
       let token = null;
-
+  
       // Verificar diferentes possíveis estruturas da resposta
       if (response.data.user && response.data.user._id) {
         // Estrutura esperada: { user: { _id, name, email }, token }
@@ -52,7 +71,7 @@ function Login({ setIsLoggedIn, switchToSignup }) {
         userEmail = response.data.email;
         token = response.data.token;
       }
-
+  
       if (!userId || !token) {
         console.error("Estrutura da resposta não reconhecida:", response.data);
         setError(
@@ -61,21 +80,21 @@ function Login({ setIsLoggedIn, switchToSignup }) {
         setIsLoading(false);
         return;
       }
-
+  
       const userData = {
         id: userId,
         name: userName || "Usuário",
         email: userEmail || email,
       };
-
+  
       console.log("Dados do usuário a serem armazenados:", userData);
-
+  
       // Store user data and token in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userData));
-
+  
       setIsLoading(false);
-
+  
       // Update the parent component's state
       setIsLoggedIn(true);
     } catch (error) {
