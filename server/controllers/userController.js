@@ -152,6 +152,11 @@ export const forgotPassword = async (req, res) => {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
+            },
+            // Add additional security options for Gmail
+            secure: true,
+            tls: {
+                rejectUnauthorized: false
             }
         });
 
