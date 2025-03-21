@@ -17,28 +17,31 @@ function Signup({ setIsLoggedIn, switchToLogin }) {
   const handleSignup = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     if (password !== confirmPassword) {
       setError("As senhas não coincidem");
       setIsLoading(false);
       return;
     }
-    
+
     try {
       const response = await api.post("/api/users/register", {
         name: username,
         email,
-        password
+        password,
       });
-      
+
       // Store user data and token in localStorage
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify({
-        id: response.data.user._id,
-        name: response.data.user.name,
-        email: response.data.user.email
-      }));
-      
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: response.data._id,
+          name: response.data.name,
+          email: response.data.email,
+        })
+      );
+
       setIsLoading(false);
       setIsLoggedIn(true);
       window.location.href = "/";
@@ -107,10 +110,14 @@ function Signup({ setIsLoggedIn, switchToLogin }) {
         <button type="submit" className="login-button" disabled={isLoading}>
           {isLoading ? "CARREGANDO..." : "CRIAR CONTA"}
         </button>
-        <a href="#" className="forgot-password" onClick={(e) => {
-          e.preventDefault();
-          switchToLogin();
-        }}>
+        <a
+          href="#"
+          className="forgot-password"
+          onClick={(e) => {
+            e.preventDefault();
+            switchToLogin();
+          }}
+        >
           Já tem uma conta? Faça login
         </a>
       </form>
