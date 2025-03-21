@@ -1,33 +1,98 @@
-/* Adicione aqui os estilos para o componente Login */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-image: url("../images/GreenListFundo.svg"); /* Path to your background image */
+  background-size: cover; /* Ensure the image covers the entire background */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat; /* Prevent the background from repeating */
+}
 
-.success-message {
-  background-color: #d4edda;
-  color: #155724;
+.login-logo {
+  margin-bottom: 40px;
+}
+
+.logo-image {
+  width: 100px; /* Adjust size as needed */
+  height: 100px;
+  border-radius: 50%;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-group {
+  position: relative; /* Ensure the icon is positioned relative to the input */
+  margin-bottom: 10px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.login-input.with-icon {
+  padding-left: 40px; /* Add padding to make space for the icon */
+}
+
+.input-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px; /* Adjust size as needed */
+  height: 20px;
+  pointer-events: none; /* Ensure the icon doesn't interfere with input focus */
+}
+
+.login-input {
+  width: 250px;
+  padding: 10px;
+  border: 1px solid #4caf50; /* Border color */
+  border-radius: 5px;
+  background-color: transparent;
+  color: #4caf50; /* Text color */
+  transition: border-color 0.3s ease, background-color 0.3s ease; /* Add transition for smooth animation */
+}
+
+.login-input::placeholder {
+  color: #4caf50; /* Placeholder text color */
+}
+
+.login-input:focus {
+  border-color: #4caf50; /* Keep border color consistent with unfocused state */
+  background-color: #d6fdbe; /* Change background color on focus */
+  outline: none; /* Remove default focus outline */
+}
+
+.login-button {
+  width: 250px;
+  padding: 10px;
+  background-color: #a5d6a7; /* Button background color */
+  color: #0b6200; /* Button text color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.forgot-password {
+  margin-top: 10px;
+  color: #0b6200; /* Link color */
+  text-decoration: none;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #fadbd8;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 15px;
   text-align: center;
-}
-
-.form-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-  text-align: center;
-  color: #333;
-}
-
-.form-description {
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  text-align: center;
-  color: #666;
-}
-
-.links-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 15px;
+  font-size: 14px;
+  border: 1px solid #e74c3c;
 }
