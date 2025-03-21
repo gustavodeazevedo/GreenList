@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000', // Ajuste para a URL correta do seu servidor
+  baseURL: 'https://greenlist.onrender.com', // URL do servidor em produção
   headers: {
     'Content-Type': 'application/json'
   }
@@ -26,14 +26,14 @@ api.interceptors.response.use(
   response => response,
   error => {
     console.error('API Error:', error);
-    
+
     // Se o erro for 401 (não autorizado), limpar o localStorage
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       // Não redirecionamos aqui para evitar loops infinitos
     }
-    
+
     return Promise.reject(error);
   }
 );
