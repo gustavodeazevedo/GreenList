@@ -96,3 +96,36 @@
   font-size: 14px;
   border: 1px solid #e74c3c;
 }
+
+.success-message {
+  color: #2ecc71;
+  background-color: #d5f5e3;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #2ecc71;
+}
+
+.form-title {
+  color: #0b6200;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.form-description {
+  color: #0b6200;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.links-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  gap: 10px;
+}
