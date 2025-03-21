@@ -5,7 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 // Import routes
-import userRoutes from './routes/users.js';
+import userRoutes from './routes/userRoutes.js';
 import listRoutes from './routes/lists.js';
 
 // Initialize app
@@ -26,7 +26,9 @@ app.use('/api/lists', listRoutes);
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://your-mongodb-uri';
+    console.log('Attempting to connect to MongoDB with URI:', mongoURI);
+    await mongoose.connect(mongoURI);
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
