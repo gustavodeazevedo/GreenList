@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+// Determinar a URL base com base no ambiente
+const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const baseURL = isDevelopment ? 'http://localhost:5000' : 'https://greenlist.onrender.com';
+
 const api = axios.create({
-  baseURL: 'https://greenlist.onrender.com', // URL do servidor em produção
+  baseURL, // URL do servidor baseada no ambiente
   headers: {
     'Content-Type': 'application/json'
   }
