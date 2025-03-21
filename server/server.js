@@ -26,9 +26,7 @@ app.use('/api/lists', listRoutes);
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://your-mongodb-uri';
-    console.log('Attempting to connect to MongoDB with URI:', mongoURI);
-    await mongoose.connect(mongoURI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
