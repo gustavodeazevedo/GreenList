@@ -434,7 +434,10 @@ function App() {
       )}
     </div>
     )
-  );
-}
+          }
+        />
+      </Routes>
+    </Router>
+} // End of App function
 
 export default App;
