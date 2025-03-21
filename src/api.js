@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://greenlist.onrender.com', // Ajuste para a URL correta do seu servidor
+  baseURL: 'https://greenlist.onrender.com', // URL do servidor em produção
   headers: {
     'Content-Type': 'application/json'
   }

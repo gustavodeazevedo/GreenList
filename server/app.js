@@ -1,6 +1,2 @@
-// ... existing code ...
-
-// Make sure the user routes are registered with the correct path prefix
-app.use('/api/users', require('./routes/users'));
-
-// ... existing code ...
+// Este arquivo não é mais necessário, pois as rotas de usuário já estão sendo carregadas em server.js
+// através do arquivo userRoutes.js
