@@ -31,9 +31,9 @@ function Login({ setIsLoggedIn, switchToSignup }) {
       localStorage.setItem(
         "user",
         JSON.stringify({
-          id: response.data.user._id,
-          name: response.data.user.name,
-          email: response.data.user.email,
+          id: response.data._id,
+          name: response.data.name,
+          email: response.data.email,
         })
       );
 
