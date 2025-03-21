@@ -299,145 +299,155 @@ function App() {
                 />
               )
             ) : (
-    // Wrap everything in a single parent div
-    <div className="min-h-screen bg-gray-100 relative">
-      {/* Header Section */}
-      <div className="bg-gray-100 p-4">
-        <div className="flex items-center justify-center mb-4">
-          <img src={Logo} alt="GreenList Logo" className="h-12 w-12" />
-          <h1 className="text-3xl font-bold text-gray-700 ml-2">GreenList</h1>
-        </div>
+              // Wrap everything in a single parent div
+              <div className="min-h-screen bg-gray-100 relative">
+                {/* Header Section */}
+                <div className="bg-gray-100 p-4">
+                  <div className="flex items-center justify-center mb-4">
+                    <img
+                      src={Logo}
+                      alt="GreenList Logo"
+                      className="h-12 w-12"
+                    />
+                    <h1 className="text-3xl font-bold text-gray-700 ml-2">
+                      GreenList
+                    </h1>
+                  </div>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="flex justify-between items-center mb-2">
-            <button
-              className="text-green-600 flex items-center"
-              onClick={handleLogout}
-            >
-              <span className="mr-1">←</span> Sair
-            </button>
-            {currentUser && (
-              <span className="text-gray-600">Olá, {currentUser.name}</span>
-            )}
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {currentList ? currentList.name : "Carregando..."}
-          </h2>
-        </div>
-      </div>
-      {/* End Header Section */}
+                  <div className="max-w-2xl mx-auto">
+                    <div className="flex justify-between items-center mb-2">
+                      <button
+                        className="text-green-600 flex items-center"
+                        onClick={handleLogout}
+                      >
+                        <span className="mr-1">←</span> Sair
+                      </button>
+                      {currentUser && (
+                        <span className="text-gray-600">
+                          Olá, {currentUser.name}
+                        </span>
+                      )}
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                      {currentList ? currentList.name : "Carregando..."}
+                    </h2>
+                  </div>
+                </div>
+                {/* End Header Section */}
 
-      {toast.show && (
-        <div
-          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 ${
-            toast.type === "error" ? "bg-red-500" : "bg-green-500"
-          } text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2`}
-        >
-          <span>{toast.message}</span>
-          <button
-            onClick={() =>
-              setToast({ show: false, message: "", type: "success" })
-            }
-            className="ml-2 text-white hover:text-gray-200"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {isLoading ? (
-        <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
-          <p>Carregando...</p>
-        </div>
-      ) : (
-        <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6 animate-fade-in">
-          <form
-            onSubmit={
-              editingId
-                ? (e) => {
-                    e.preventDefault();
-                    updateItem(editingId);
-                  }
-                : addItem
-            }
-            className="mb-4 sm:mb-6"
-          >
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="text"
-                value={newItem}
-                onChange={(e) => setNewItem(e.target.value)}
-                placeholder="Adicione um item..."
-                className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-[#3D9A59] transition-colors text-sm sm:text-base"
-              />
-
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#3D9A59] text-white rounded-lg hover:bg-[#2d7342] transition-colors text-sm sm:text-base whitespace-nowrap"
-              >
-                {editingId ? "Atualizar" : "Adicionar item"}
-              </button>
-            </div>
-          </form>
-
-          {items.length === 0 ? (
-            <p className="text-center text-gray-500 py-4">
-              Sua lista está vazia. Adicione alguns itens!
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className={`flex items-center gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg animate-slide-in ${
-                    item.completed ? "opacity-75" : ""
-                  }`}
-                >
-                  {renderCheckbox(item.completed, () => toggleItem(item.id))}
-                  <span
-                    className={`flex-1 text-sm sm:text-base ${
-                      item.completed
-                        ? "line-through text-gray-500"
-                        : "text-[#000000]"
-                    }`}
+                {toast.show && (
+                  <div
+                    className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 ${
+                      toast.type === "error" ? "bg-red-500" : "bg-green-500"
+                    } text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-2`}
                   >
-                    {item.text}
-                  </span>
-                  <button
-                    onClick={() => startEditing(item.id, item.text)}
-                    className="p-1.5 sm:p-2 text-secondary- hover:text-primary transition-colors"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => removeItem(item.id)}
-                    className="p-1.5 sm:p-2 text-danger hover:text-red-600 transition-colors"
-                  >
-                    🗑️
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                    <span>{toast.message}</span>
+                    <button
+                      onClick={() =>
+                        setToast({ show: false, message: "", type: "success" })
+                      }
+                      className="ml-2 text-white hover:text-gray-200"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
-          {items.length > 0 && (
-            <div className="mt-4 sm:mt-6 text-center">
-              <button
-                onClick={clearList}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-danger bg-[#3D9A59] rounded-lg transition-colors"
-              >
-                <span className="text-[#ffffff]">Limpar lista</span>
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-    )
+                {isLoading ? (
+                  <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
+                    <p>Carregando...</p>
+                  </div>
+                ) : (
+                  <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6 animate-fade-in">
+                    <form
+                      onSubmit={
+                        editingId
+                          ? (e) => {
+                              e.preventDefault();
+                              updateItem(editingId);
+                            }
+                          : addItem
+                      }
+                      className="mb-4 sm:mb-6"
+                    >
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="text"
+                          value={newItem}
+                          onChange={(e) => setNewItem(e.target.value)}
+                          placeholder="Adicione um item..."
+                          className="w-full px-3 sm:px-4 py-2 border rounded-lg focus:outline-none focus:border-[#3D9A59] transition-colors text-sm sm:text-base"
+                        />
+
+                        <button
+                          type="submit"
+                          className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#3D9A59] text-white rounded-lg hover:bg-[#2d7342] transition-colors text-sm sm:text-base whitespace-nowrap"
+                        >
+                          {editingId ? "Atualizar" : "Adicionar item"}
+                        </button>
+                      </div>
+                    </form>
+
+                    {items.length === 0 ? (
+                      <p className="text-center text-gray-500 py-4">
+                        Sua lista está vazia. Adicione alguns itens!
+                      </p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {items.map((item) => (
+                          <li
+                            key={item.id}
+                            className={`flex items-center gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg animate-slide-in ${
+                              item.completed ? "opacity-75" : ""
+                            }`}
+                          >
+                            {renderCheckbox(item.completed, () =>
+                              toggleItem(item.id)
+                            )}
+                            <span
+                              className={`flex-1 text-sm sm:text-base ${
+                                item.completed
+                                  ? "line-through text-gray-500"
+                                  : "text-[#000000]"
+                              }`}
+                            >
+                              {item.text}
+                            </span>
+                            <button
+                              onClick={() => startEditing(item.id, item.text)}
+                              className="p-1.5 sm:p-2 text-secondary- hover:text-primary transition-colors"
+                            >
+                              ✏️
+                            </button>
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="p-1.5 sm:p-2 text-danger hover:text-red-600 transition-colors"
+                            >
+                              🗑️
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {items.length > 0 && (
+                      <div className="mt-4 sm:mt-6 text-center">
+                        <button
+                          onClick={clearList}
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-danger bg-[#3D9A59] rounded-lg transition-colors"
+                        >
+                          <span className="text-[#ffffff]">Limpar lista</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
           }
         />
       </Routes>
     </Router>
-} // End of App function
-
+  ); // End of App function
+}
 export default App;
