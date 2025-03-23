@@ -1,8 +1,13 @@
 import "./Login.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logosvg from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import api from "../api";
+import {
+  checkEmailCooldown,
+  recordEmailRequest,
+  executeWithRetry,
+} from "../utils/requestUtils";
 
 function ForgotPassword({ switchToLogin }) {
   const [email, setEmail] = useState("");
@@ -16,8 +21,31 @@ function ForgotPassword({ switchToLogin }) {
     setError("");
     setMessage("");
 
+    // Verificar cooldown para evitar múltiplas solicitações
+    const cooldownCheck = checkEmailCooldown(email, 60000); // 1 minuto de cooldown
+    if (cooldownCheck.inCooldown) {
+      setIsLoading(false);
+      setError(
+        `Aguarde ${cooldownCheck.remainingSeconds} segundos antes de tentar novamente.`
+      );
+      return;
+    }
+
     try {
-      const response = await api.post("/api/users/forgot-password", { email });
+      // Usar executeWithRetry para lidar com falhas temporárias
+      const response = await executeWithRetry(
+        async () => await api.post("/api/users/forgot-password", { email }),
+        {
+          maxRetries: 3,
+          initialDelayMs: 1000,
+          maxDelayMs: 5000,
+          retryAllErrors: false, // Apenas retry em erros de rate limit
+        }
+      );
+
+      // Registrar a solicitação para controle de cooldown
+      recordEmailRequest(email);
+
       setMessage(
         response.data.message ||
           "E-mail de recuperação enviado. Verifique sua caixa de entrada."
@@ -25,9 +53,27 @@ function ForgotPassword({ switchToLogin }) {
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      setError(
-        error.response?.data?.message || "Erro ao processar a solicitação"
-      );
+
+      // Handle rate limiting error specifically
+      if (error.response?.status === 429) {
+        setError(
+          error.response?.data?.message ||
+            "Muitas solicitações. Por favor, aguarde alguns minutos antes de tentar novamente."
+        );
+      } else if (error.response?.status === 403) {
+        // Erro específico do SendGrid
+        setError(
+          "Erro no serviço de email. Por favor, entre em contato com o suporte."
+        );
+        console.error("SendGrid error:", error.response?.data);
+      } else {
+        setError(
+          error.response?.data?.message || "Erro ao processar a solicitação"
+        );
+      }
+
+      // Log error for debugging
+      console.error("Password reset request error:", error.response || error);
     }
   };
 
