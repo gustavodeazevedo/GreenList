@@ -1,12 +1,68 @@
-# React + Vite
+# GreenList - Aplicativo de Lista de Compras
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GreenList é uma aplicação web para gerenciamento de listas de compras, permitindo aos usuários criar, editar e compartilhar suas listas de compras com outras pessoas.
 
-Currently, two official plugins are available:
+## Estrutura do Projeto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+O projeto está dividido em duas partes principais:
 
-## Expanding the ESLint configuration
+- **Frontend**: Desenvolvido com React e Vite
+- **Backend**: API RESTful desenvolvida com Node.js, Express e MongoDB
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Pré-requisitos
+
+- Node.js (v14 ou superior)
+- MongoDB (local ou Atlas)
+- Conta no SendGrid (para funcionalidade de recuperação de senha)
+
+## Configuração
+
+1. Clone o repositório
+
+   ```
+   git clone https://github.com/seu-usuario/greenlist.git
+   cd greenlist
+   ```
+
+2. Instale as dependências
+
+   ```
+   npm install
+   cd client && npm install
+   cd ../server && npm install
+   ```
+
+3. Configure as variáveis de ambiente
+
+   - Crie um arquivo `.env` na pasta raiz do projeto baseado no arquivo `.env.example`
+   - Crie um arquivo `.env` na pasta `server` baseado no arquivo `.env.example` da pasta server
+
+4. Inicie o servidor de desenvolvimento
+   ```
+   npm run start
+   ```
+
+## Deploy
+
+### Frontend (Vercel)
+
+1. Faça login na Vercel e importe o projeto do GitHub
+2. Configure as variáveis de ambiente necessárias
+3. Deploy!
+
+### Backend (Render ou similar)
+
+1. Faça login no Render e crie um novo Web Service
+2. Conecte ao repositório GitHub
+3. Configure as variáveis de ambiente conforme o arquivo `.env.example`
+4. Configure o comando de inicialização: `cd server && npm start`
+
+## Segurança
+
+- Nunca comite arquivos `.env` para o repositório
+- Sempre use o `.gitignore` para excluir arquivos sensíveis
+- Rotacione as chaves de API periodicamente
+
+## Licença
+
+MIT
