@@ -71,6 +71,7 @@ function Login({ setIsLoggedIn, switchToSignup }) {
               type="text"
               placeholder="E-MAIL"
               className="login-input with-icon"
+              style={{ animationDelay: "1.8s" }}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -83,6 +84,7 @@ function Login({ setIsLoggedIn, switchToSignup }) {
               type="password"
               placeholder="SENHA"
               className="login-input with-icon"
+              style={{ animationDelay: "2.0s" }}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
