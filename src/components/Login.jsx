@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Logosvg from "../images/GreenListLogoSVG.svg";
 import User from "../images/user.svg";
 import Lock from "../images/lock.svg";
-import Fundo from "../images/GreenListFundo.svg";
+import Fundo from "../images/GreenListNewFundo.svg";
 import api from "../api";
 import ForgotPassword from "./ForgotPassword";
 import Signup from "./Signup";
