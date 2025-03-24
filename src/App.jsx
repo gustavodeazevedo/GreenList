@@ -309,7 +309,36 @@ function App() {
                       alt="GreenList Logo"
                       className="h-12 w-12"
                     />
-                    <h1 className="text-3xl font-bold text-gray-700 ml-2">
+                    <h1
+                      className="text-3xl font-bold ml-2"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, hsla(128, 45%, 42%, 0.8), hsla(130, 45%, 42%, 0.5), hsla(140, 45%, 42%, 0.4), hsla(128, 45%, 42%, 0.8))",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                        animation: "pulsingGradient 5s ease-in-out infinite",
+                        backgroundSize: "300% 100%",
+                      }}
+                    >
+                      <style>
+                        {`
+      @keyframes pulsingGradient {
+        0% {
+          background-position: 0% 50%;
+          background-size: 300% 100%;
+        }
+        50% {
+          background-position: 100% 50%;
+          background-size: 400% 100%;
+        }
+        100% {
+          background-position: 0% 50%;
+          background-size: 300% 100%;
+        }
+      }
+    `}
+                      </style>
                       GreenList
                     </h1>
                   </div>
