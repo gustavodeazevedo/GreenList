@@ -161,7 +161,7 @@ function App() {
 
       // Update local state
       setItems(items.filter((item) => item.id !== id));
-      showToast(`Item "${itemToRemove.text}" foi excluído`, "success");
+      showToast(`"${itemToRemove.text}" removido`, "success");
     } catch (error) {
       console.error("Error removing item:", error);
       showToast("Erro ao remover item", "error");

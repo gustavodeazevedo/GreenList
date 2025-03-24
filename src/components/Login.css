@@ -96,7 +96,6 @@
 
 .login-input:focus {
   border-color: #4caf50; /* Keep border color consistent with unfocused state */
-  background-color: #d6fdbe; /* Change background color on focus */
   outline: none; /* Remove default focus outline */
 }
 
