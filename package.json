@@ -16,7 +16,7 @@
     "start:server": "cd server && node server.js"
   },
   "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
+    "@sendgrid/mail": "^8.1.4",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.8.3",
     "react": "^19.0.0",
